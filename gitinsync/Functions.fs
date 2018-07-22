@@ -17,22 +17,24 @@ let withRepository folder f =
     with
         | :? RepositoryNotFoundException -> Error { Directory=folder; BranchName=None; Message="Not a git repository"; Comparison=None }
 
-let trueOrError exp dir bn errorMsg =
-    match exp with
+let trueOrError repo exp errorMsg =
+    let dir = folderName repo 
+    let bn = Some repo.Head.FriendlyName
+    match (exp repo) with
     | false -> Error { Directory=dir; BranchName=bn; Message=errorMsg; Comparison=None }
     | true -> Ok ()
 
 let ensureRepositoryHasOriginRemote (repo: Repository) =
-    trueOrError (repo.Network.Remotes.["origin"] <> null) (folderName repo) (Some repo.Head.FriendlyName) "No origin remote"
+    trueOrError repo (fun r -> r.Network.Remotes.["origin"] <> null) "No origin remote"
 
 let ensureRepositoryRemoteHostIsCorrect remoteMustMatch (repo: Repository) =
-    trueOrError (repo.Network.Remotes.["origin"].Url.Contains(remoteMustMatch)) (folderName repo) (Some repo.Head.FriendlyName) "Not checked (external)"
+    trueOrError repo (fun r -> r.Network.Remotes.["origin"].Url.Contains(remoteMustMatch)) "Not checked (external)"
 
 let ensureRepositoryTracksOriginRemote (repo: Repository) =
-    trueOrError (repo.Head.IsTracking && repo.Head.RemoteName = "origin") (folderName repo) (Some repo.Head.FriendlyName) "Not tracking origin remote"
+    trueOrError repo (fun r -> r.Head.IsTracking && repo.Head.RemoteName = "origin") "Not tracking origin remote"
 
 let ensureChangesAreCommitted (repo: Repository) =
-    trueOrError (not (repo.RetrieveStatus().IsDirty)) (folderName repo) (Some repo.Head.FriendlyName) "UNCOMMITTED"
+    trueOrError repo (fun r -> not (r.RetrieveStatus().IsDirty)) "UNCOMMITTED"
 
 let fetchChanges credentials dir (repo: Repository) =
     let remote = repo.Network.Remotes.["origin"]

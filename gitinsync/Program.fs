@@ -45,17 +45,19 @@ let main argv =
 
     let spacesToFillLine (lineContents: string) = 
         let num = Console.BufferWidth - lineContents.Length - 1
-        String.concat "" [ for i in 1 .. num -> " " ]
+        String.concat "" [ for _ in 1 .. num -> " " ]
 
     let cfg = createConfig ConfigurationManager.AppSettings
 
     let credentials = CredentialsHandler((fun _ _ _ ->
         UsernamePasswordCredentials(Username=cfg.GitUsername, Password=cfg.GitPassword) :> Credentials))
     
-    let reportProgress s =
-        let msg = sprintf "Checking %s" s
+    let updateLine s =
         Console.SetCursorPosition(0, Console.CursorTop)
-        Console.Write (sprintf "%s%s" msg (spacesToFillLine msg))
+        Console.Write (sprintf "%s%s" s (spacesToFillLine s))
+
+    let reportProgress s =
+        updateLine (sprintf "Checking %s" s)
 
     let getTrackingBranchDifferences' = getTrackingBranchDifferences credentials
     let getRepositoryDifferences' = getRepositoryDifferences cfg.RemoteMustMatch getTrackingBranchDifferences' reportProgress
@@ -100,16 +102,16 @@ let main argv =
                      | Some d -> createTableRow d
                      | None -> createErrorRow e
 
-    Console.WriteLine ()
+    printfn ""
 
     let tableData = gitRepositories
                     |> Seq.map getRepositoryDifferences'
                     |> Seq.map outputResult
                     |> Seq.toArray
 
-    Console.SetCursorPosition(0, Console.CursorTop)
-    Console.Write (spacesToFillLine "")
-    Console.WriteLine ()
+    printfn ""
+    updateLine ""
+    printf " "
 
     ConsoleTable
         .From(tableData)
