@@ -3,6 +3,7 @@
 open LibGit2Sharp
 open Types
 open System.IO
+open System.Collections.Specialized
 
 let valueOrZero (n: System.Nullable<int>) = 
    if n.HasValue then n.Value else 0
@@ -84,4 +85,35 @@ let ensureLocalRepositoryIsValid remoteMustMatch folder =
         do! ensureRepositoryTracksOriginRemote |> withRepository'
         do! ensureChangesAreCommitted |> withRepository'
         return ()
+    }
+
+let isNotIgnored ignores path =
+    not (ignores |> List.contains path)
+
+let isGitRepository path =
+    Directory.Exists(path + @"\.git")
+
+let findGitRepositories (ignores: string list) path =
+    let subFolders = (new DirectoryInfo(path)).EnumerateDirectories()
+
+    let isGitRepositoryAndNotIgnored (di: DirectoryInfo) = 
+        di.FullName |> isNotIgnored ignores && di.FullName |> isGitRepository
+
+    subFolders
+    |> Seq.filter isGitRepositoryAndNotIgnored
+    |> Seq.map (fun di -> di.FullName)
+
+let getRepositoryDifferences remoteMustMatch getTrackingBranchDifferences callback path =
+    result {
+        callback path
+        do! ensureLocalRepositoryIsValid remoteMustMatch path
+        let! diff = path |> getTrackingBranchDifferences
+        return diff
+    }
+
+let createConfig (nvc: NameValueCollection) =
+    { 
+        GitUsername = nvc.["GitUsername"]
+        GitPassword = nvc.["GitPassword"]
+        RemoteMustMatch = nvc.["RemoteMustMatch"]
     }

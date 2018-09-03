@@ -1,43 +1,10 @@
 ﻿open Functions
 open LibGit2Sharp
 open LibGit2Sharp.Handlers
-open System.IO
 open Types
 open System.Configuration
-open System.Collections.Specialized
 open ConsoleTables
 open System
-
-let isNotIgnored ignores path =
-    not (ignores |> List.contains path)
-
-let isGitRepository path =
-    Directory.Exists(path + @"\.git")
-
-let findGitRepositories (ignores: string list) path =
-    let subFolders = (new DirectoryInfo(path)).EnumerateDirectories()
-
-    let isGitRepositoryAndNotIgnored (di: DirectoryInfo) = 
-        di.FullName |> isNotIgnored ignores && di.FullName |> isGitRepository
-
-    subFolders
-    |> Seq.filter isGitRepositoryAndNotIgnored
-    |> Seq.map (fun di -> di.FullName)
-
-let getRepositoryDifferences remoteMustMatch getTrackingBranchDifferences callback path =
-    result {
-        callback path
-        do! ensureLocalRepositoryIsValid remoteMustMatch path
-        let! diff = path |> getTrackingBranchDifferences
-        return diff
-    }
-
-let createConfig (nvc: NameValueCollection) =
-    { 
-        GitUsername = nvc.["GitUsername"]
-        GitPassword = nvc.["GitPassword"]
-        RemoteMustMatch = nvc.["RemoteMustMatch"]
-    }
 
 [<EntryPoint>]
 let main argv = 
@@ -60,7 +27,9 @@ let main argv =
         updateLine (sprintf "Checking %s" s)
 
     let getTrackingBranchDifferences' = getTrackingBranchDifferences credentials
-    let getRepositoryDifferences' = getRepositoryDifferences cfg.RemoteMustMatch getTrackingBranchDifferences' reportProgress
+
+    let getRepositoryDifferences' = 
+        getRepositoryDifferences cfg.RemoteMustMatch getTrackingBranchDifferences' reportProgress
     
     let gitRepositories = findGitRepositories ignores argv.[0]
     
