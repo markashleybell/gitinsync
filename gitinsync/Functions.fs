@@ -4,6 +4,8 @@ open LibGit2Sharp
 open Types
 open System.IO
 open System.Collections.Specialized
+open System
+open System.Collections.Generic
 
 let valueOrZero (n: System.Nullable<int>) = 
    if n.HasValue then n.Value else 0
@@ -111,9 +113,22 @@ let getRepositoryDifferences remoteMustMatch getTrackingBranchDifferences callba
         return diff
     }
 
-let createConfig (nvc: NameValueCollection) =
-    { 
-        GitUsername = nvc.["GitUsername"]
-        GitPassword = nvc.["GitPassword"]
-        RemoteMustMatch = nvc.["RemoteMustMatch"]
-    }
+let parseConfigLine (line: string) =
+    line.Split(':') |> (fun a -> (a.[0].Trim(), a.[1].Trim()))
+
+let tryLoadConfig path =
+    try
+        let settings = 
+            File.ReadAllLines(path) 
+            |> Array.map parseConfigLine 
+            |> dict
+
+        Ok { 
+            GitUsername = settings.["username"]
+            GitPassword = settings.["password"]
+            RemoteMustMatch = settings.["remotemustmatch"]
+        }
+    with
+        | :? FileNotFoundException -> Error (sprintf "Configuration file not found at %s" path)
+        | :? IndexOutOfRangeException -> Error (sprintf "Configuration parse error in %s" path)
+        | :? KeyNotFoundException as ex -> Error (sprintf "Configuration key missing from %s" path)

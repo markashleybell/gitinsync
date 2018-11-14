@@ -1,0 +1,3 @@
+username: GIT-USERNAME
+password: GIT-PASSWORD-OR-ACCESSTOKEN
+remotemustmatch: REMOTE-URL-PATTERN
