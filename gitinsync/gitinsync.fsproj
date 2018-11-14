@@ -20,7 +20,6 @@
         <PackageReference Include="ConsoleTables" Version="2.2.0" />
         <PackageReference Include="FSharp.Core" Version="4.5.2" />
         <PackageReference Include="FSharp.NET.Sdk" Version="1.0.5" />
-        <PackageReference Include="LibGit2Sharp" Version="0.25.2" />
     </ItemGroup>
     <ItemGroup>
       <Reference Include="System.Configuration" />
@@ -29,5 +28,6 @@
       <None Update="App.config">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+        <PackageReference Include="LibGit2Sharp" Version="0.25.3" />
     </ItemGroup>
 </Project>
