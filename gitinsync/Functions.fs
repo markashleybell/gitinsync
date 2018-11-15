@@ -51,7 +51,7 @@ let fetchChanges credentials dir (repo: Repository) =
         | :? LibGit2SharpException as e ->
             match e.Message with
             | m when m.Contains("401") || m.Contains("replays") -> Error { Directory=dir; BranchName=Some branch.FriendlyName; Message="Incorrect credentials"; Comparison=None }
-            | m when m.Contains("not found") -> Error { Directory=dir; BranchName=Some branch.FriendlyName; Message="Remote not found or no access"; Comparison=None }
+            | m when m.Contains("404") -> Error { Directory=dir; BranchName=Some branch.FriendlyName; Message="Remote not found/no access"; Comparison=None }
             | m when m.Contains("timed out") -> Error { Directory=dir; BranchName=Some branch.FriendlyName; Message="Timed out accessing remote"; Comparison=None }
             | _ -> Error { Directory=dir; BranchName=Some branch.FriendlyName; Message=e.Message; Comparison=None }
 
