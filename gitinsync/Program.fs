@@ -38,6 +38,8 @@ let main argv =
             getRepositoryDifferences cfg.RemoteMustMatch getTrackingBranchDifferences' reportProgress
     
         let gitRepositories = findGitRepositories ignores path
+
+        let repositoryCount = gitRepositories |> Seq.length
     
         let behind c =
             match c.BehindRemoteBy > 0 with 
@@ -77,6 +79,8 @@ let main argv =
                          | Some d -> createTableRow d
                          | None -> createErrorRow e
 
+        printfn ""
+        printfn "Found %d git repositories in %s" repositoryCount path
         printfn ""
 
         let tableData = gitRepositories
