@@ -129,6 +129,7 @@ let tryLoadConfig path =
             RemoteMustMatch = settings.["remotemustmatch"]
         }
     with
+        | :? DirectoryNotFoundException -> Error (sprintf "Directory %s does not exist" path)
         | :? FileNotFoundException -> Error (sprintf "Configuration file not found at %s" path)
         | :? IndexOutOfRangeException -> Error (sprintf "Configuration parse error in %s" path)
         | :? KeyNotFoundException as ex -> Error (sprintf "Configuration key missing from %s" path)
