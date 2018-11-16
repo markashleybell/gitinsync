@@ -29,8 +29,8 @@ type Config = {
 }
 
 type OutputTableRow = {
-    Status: string;
     Repository: string;
     Branch: string;
+    Status: string;
     Info: string;
 }

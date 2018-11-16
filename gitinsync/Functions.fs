@@ -151,7 +151,10 @@ let ahead c =
     | false -> []
 
 let formatInfo c = 
-    String.concat ", " ((ahead c) @ (behind c))
+    let info = String.concat ", " ((ahead c) @ (behind c))
+    match info = "" with
+    | true -> "--"
+    | false -> info
 
 let createComparisonRow (c: LocalBranchComparison) = 
     {
