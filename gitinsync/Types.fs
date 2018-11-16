@@ -25,6 +25,7 @@ type Config = {
     GitUsername: string;
     GitPassword: string;
     RemoteMustMatch: string;
+    Ignores: string list;
 }
 
 type OutputTableRow = {

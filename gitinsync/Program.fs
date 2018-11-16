@@ -14,8 +14,6 @@ let main argv =
     match tryLoadConfig (sprintf @"%s\.gitinsync" path) with
     | Ok cfg ->
 
-        let ignores = []
-
         let spacesToFillLine (lineContents: string) = 
             let num = Console.BufferWidth - lineContents.Length - 1
             String.concat "" [ for _ in 1 .. num -> " " ]
@@ -29,7 +27,7 @@ let main argv =
 
         let getTrackingBranchDifferences' = getTrackingBranchDifferences credentials
 
-        let gitRepositories = findGitRepositories ignores path
+        let gitRepositories = findGitRepositories cfg.Ignores path
 
         let repositoryCount = gitRepositories |> Seq.length
 

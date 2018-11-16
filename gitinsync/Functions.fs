@@ -98,7 +98,7 @@ let findGitRepositories (ignores: string list) path =
     let subFolders = (new DirectoryInfo(path)).EnumerateDirectories()
 
     let isGitRepositoryAndNotIgnored (di: DirectoryInfo) = 
-        di.FullName |> isNotIgnored ignores && di.FullName |> isGitRepository
+        di.Name |> isNotIgnored ignores && di.FullName |> isGitRepository
 
     subFolders
     |> Seq.filter isGitRepositoryAndNotIgnored
@@ -122,10 +122,16 @@ let tryLoadConfig path =
             |> Array.map parseConfigLine 
             |> dict
 
+        let ignores = 
+            match settings.ContainsKey("ignores") with
+            | true -> settings.["ignores"].Split('|') |> List.ofArray
+            | false -> []
+
         Ok { 
             GitUsername = settings.["username"]
             GitPassword = settings.["password"]
             RemoteMustMatch = settings.["remotemustmatch"]
+            Ignores = ignores
         }
     with
         | :? DirectoryNotFoundException -> Error (sprintf "Directory %s does not exist" path)
