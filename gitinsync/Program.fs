@@ -24,23 +24,23 @@ let main argv =
 
         let credentials = CredentialsHandler((fun _ _ _ ->
             UsernamePasswordCredentials(Username=cfg.GitUsername, Password=cfg.GitPassword) :> Credentials))
-    
+
         let updateLine s =
             Console.SetCursorPosition(0, Console.CursorTop)
             Console.Write (sprintf "%s%s" s (spacesToFillLine s))
 
-        let reportProgress s =
-            updateLine (sprintf "Checking %s" s)
-
         let getTrackingBranchDifferences' = getTrackingBranchDifferences credentials
 
-        let getRepositoryDifferences' = 
-            getRepositoryDifferences cfg.RemoteMustMatch getTrackingBranchDifferences' reportProgress
-    
         let gitRepositories = findGitRepositories ignores path
 
         let repositoryCount = gitRepositories |> Seq.length
-    
+
+        let reportProgress i s =
+            updateLine (sprintf "Check [%d of %d]: %s" i repositoryCount s)
+
+        let getRepositoryDifferences' i = 
+            getRepositoryDifferences cfg.RemoteMustMatch getTrackingBranchDifferences' (reportProgress (i + 1))
+
         let behind c =
             match c.BehindRemoteBy > 0 with 
             | true -> [sprintf "%d to pull" c.BehindRemoteBy] 
@@ -84,7 +84,7 @@ let main argv =
         printfn ""
 
         let tableData = gitRepositories
-                        |> Seq.map getRepositoryDifferences'
+                        |> Seq.mapi getRepositoryDifferences'
                         |> Seq.map outputResult
                         |> Seq.toArray
 
