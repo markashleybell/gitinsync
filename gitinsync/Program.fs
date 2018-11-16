@@ -1,8 +1,6 @@
 ﻿open Functions
 open LibGit2Sharp
 open LibGit2Sharp.Handlers
-open Types
-open System.Configuration
 open ConsoleTables
 open System
 open System.IO
@@ -41,52 +39,15 @@ let main argv =
         let getRepositoryDifferences' i = 
             getRepositoryDifferences cfg.RemoteMustMatch getTrackingBranchDifferences' (reportProgress (i + 1))
 
-        let behind c =
-            match c.BehindRemoteBy > 0 with 
-            | true -> [sprintf "%d to pull" c.BehindRemoteBy] 
-            | false -> []
-
-        let ahead c =
-            match c.AheadOfRemoteBy > 0 with 
-            | true -> [sprintf "%d to push" c.AheadOfRemoteBy] 
-            | false -> []
-
-        let formatInfo c = 
-            String.concat ", " ((ahead c) @ (behind c))
-
-        let createTableRow (c: LocalBranchComparison) = 
-            {
-                Status = c.Status
-                Repository = c.Directory
-                Branch = c.BranchName
-                Info = formatInfo c
-            }
-
-        let createErrorRow (e: PipelineError) = 
-            {
-                Status = e.Message
-                Repository = e.Directory
-                Branch = match e.BranchName with
-                         | Some n -> n
-                         | None -> ""
-                Info = ""
-            }
-
-        let outputResult r = 
-            match r with
-            | Ok d -> createTableRow d
-            | Error e -> match e.Comparison with
-                         | Some d -> createTableRow d
-                         | None -> createErrorRow e
-
         printfn ""
         printfn "Found %d git repositories in %s" repositoryCount path
         printfn ""
 
-        let tableData = gitRepositories
-                        |> Seq.mapi getRepositoryDifferences'
-                        |> Seq.map outputResult
-                        |> Seq.toArray
+        let tableData = 
+            gitRepositories
+            |> Seq.mapi getRepositoryDifferences'
+            |> Seq.map outputResult
+            |> Seq.toArray
 
         printfn ""
         updateLine ""

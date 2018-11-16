@@ -3,7 +3,6 @@
 open LibGit2Sharp
 open Types
 open System.IO
-open System.Collections.Specialized
 open System
 open System.Collections.Generic
 
@@ -133,3 +132,42 @@ let tryLoadConfig path =
         | :? FileNotFoundException -> Error (sprintf "Configuration file not found at %s" path)
         | :? IndexOutOfRangeException -> Error (sprintf "Configuration parse error in %s" path)
         | :? KeyNotFoundException as ex -> Error (sprintf "Configuration key missing from %s" path)
+
+
+let behind c =
+    match c.BehindRemoteBy > 0 with 
+    | true -> [sprintf "%d to pull" c.BehindRemoteBy] 
+    | false -> []
+
+let ahead c =
+    match c.AheadOfRemoteBy > 0 with 
+    | true -> [sprintf "%d to push" c.AheadOfRemoteBy] 
+    | false -> []
+
+let formatInfo c = 
+    String.concat ", " ((ahead c) @ (behind c))
+
+let createComparisonRow (c: LocalBranchComparison) = 
+    {
+        Status = c.Status
+        Repository = c.Directory
+        Branch = c.BranchName
+        Info = formatInfo c
+    }
+
+let createErrorRow (e: PipelineError) = 
+    {
+        Status = e.Message
+        Repository = e.Directory
+        Branch = match e.BranchName with
+                    | Some n -> n
+                    | None -> ""
+        Info = ""
+    }
+
+let outputResult r = 
+    match r with
+    | Ok d -> createComparisonRow d
+    | Error e -> match e.Comparison with
+                    | Some d -> createComparisonRow d
+                    | None -> createErrorRow e
