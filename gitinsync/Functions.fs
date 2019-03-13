@@ -5,6 +5,7 @@ open Types
 open System.IO
 open System
 open System.Collections.Generic
+open System.Text.RegularExpressions
 
 let valueOrZero (n: System.Nullable<int>) = 
    if n.HasValue then n.Value else 0
@@ -30,7 +31,7 @@ let ensureRepositoryHasOriginRemote (repo: Repository) =
     trueOrError repo (fun r -> r.Network.Remotes.["origin"] <> null) "No origin remote"
 
 let ensureRepositoryRemoteHostIsCorrect remoteMustMatch (repo: Repository) =
-    trueOrError repo (fun r -> r.Network.Remotes.["origin"].Url.Contains(remoteMustMatch)) "Not checked (external)"
+    trueOrError repo (fun r -> Regex.IsMatch(r.Network.Remotes.["origin"].Url, remoteMustMatch)) "Not checked (external)"
 
 let ensureRepositoryTracksOriginRemote (repo: Repository) =
     trueOrError repo (fun r -> r.Head.IsTracking && repo.Head.RemoteName = "origin") "Not tracking origin remote"
