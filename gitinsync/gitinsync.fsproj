@@ -17,8 +17,8 @@
         <Compile Include="Program.fs" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="ConsoleTables" Version="2.2.0" />
+        <PackageReference Include="ConsoleTables" Version="2.3.0" />
         <PackageReference Include="FSharp.Core" Version="4.7.0" />
-        <PackageReference Include="LibGit2Sharp" Version="0.25.3" />
+        <PackageReference Include="LibGit2Sharp" Version="0.26.1" />
     </ItemGroup>
 </Project>
