@@ -1,6 +1,6 @@
-﻿<Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net471</TargetFramework>
+        <TargetFramework>net472</TargetFramework>
         <OutputType>Exe</OutputType>
         <Authors>Mark Ashley Bell</Authors>
         <Version>1.0.0-beta</Version>
@@ -18,8 +18,7 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="ConsoleTables" Version="2.2.0" />
-        <PackageReference Include="FSharp.Core" Version="4.5.3" />
-        <PackageReference Include="FSharp.NET.Sdk" Version="1.0.5" />
+        <PackageReference Include="FSharp.Core" Version="4.7.0" />
         <PackageReference Include="LibGit2Sharp" Version="0.25.3" />
     </ItemGroup>
 </Project>
